@@ -27,7 +27,6 @@ export default function ValentineCard({ config, forceEmbedded }: Props) {
   const textSecondary = isDarkCard ? 'rgba(255,255,255,0.84)' : 'rgba(17,24,39,0.75)';
   const softBorder = isDarkCard ? 'rgba(255,255,255,0.16)' : 'rgba(17,24,39,0.10)';
 
-
   const tricks = config.tricks ?? {};
   const dodgeNo = tricks.dodgeNo ?? true;
   const jumpscare = tricks.jumpscare ?? true;
@@ -58,6 +57,12 @@ export default function ValentineCard({ config, forceEmbedded }: Props) {
   const gifUrl = config.gifUrl?.trim() || 'https://media.giphy.com/media/NoPNkgzHD8HSK6Nr5l/giphy.gif';
 
   const cardMaxW = 520;
+
+  // ✅ MINIMAL FIX: detect touch web so hover/pointer tricks don't break scrolling
+  const isTouchWeb =
+    Platform.OS === 'web' &&
+    typeof navigator !== 'undefined' &&
+    (navigator.maxTouchPoints ?? 0) > 0;
 
   useEffect(() => {
     // initial placement: keep NO on the right side a bit
@@ -206,14 +211,21 @@ export default function ValentineCard({ config, forceEmbedded }: Props) {
           containerW.current = e.nativeEvent.layout.width;
           containerH.current = e.nativeEvent.layout.height;
         }}
-        // works on web + native to detect proximity
-        onStartShouldSetResponder={() => true}
+
+        // ✅ MINIMAL FIX: don't steal scroll on mobile
+        onStartShouldSetResponder={() => (Platform.OS === 'web' ? dodgeNo : false)}
+        onMoveShouldSetResponder={() => false}
         onResponderMove={(e) => {
+          // ✅ never run responder move on mobile (prevents scroll conflicts)
+          if (Platform.OS !== 'web') return;
           const { locationX, locationY } = e.nativeEvent;
           maybeDodge(locationX, locationY);
         }}
+
         // @ts-ignore - RN Web
         onMouseMove={(e) => {
+          // ✅ ignore touch web (prevents scroll issues on mobile browsers)
+          if (isTouchWeb) return;
           const ne: any = (e as any).nativeEvent ?? e;
           const x = ne.locationX ?? ne.offsetX ?? ne.layerX;
           const y = ne.locationY ?? ne.offsetY ?? ne.layerY;
@@ -221,6 +233,8 @@ export default function ValentineCard({ config, forceEmbedded }: Props) {
         }}
         // @ts-ignore - RN Web
         onPointerMove={(e) => {
+          // ✅ ignore touch web (prevents scroll issues on mobile browsers)
+          if (isTouchWeb) return;
           const ne: any = (e as any).nativeEvent ?? e;
           const x = ne.locationX ?? ne.offsetX ?? ne.layerX;
           const y = ne.locationY ?? ne.offsetY ?? ne.layerY;
@@ -267,8 +281,8 @@ export default function ValentineCard({ config, forceEmbedded }: Props) {
                     style={[
                       {
                         backgroundColor: theme.yes,
-                  borderWidth: 1,
-                  borderColor: 'rgba(255,255,255,0.22)',
+                        borderWidth: 1,
+                        borderColor: 'rgba(255,255,255,0.22)',
                         paddingHorizontal: 24,
                         paddingVertical: 14,
                         borderRadius: 18
@@ -285,8 +299,8 @@ export default function ValentineCard({ config, forceEmbedded }: Props) {
                     style={[
                       {
                         backgroundColor: theme.no,
-                  borderWidth: 1,
-                  borderColor: softBorder,
+                        borderWidth: 1,
+                        borderColor: softBorder,
                         paddingHorizontal: 24,
                         paddingVertical: 14,
                         borderRadius: 18
@@ -325,7 +339,10 @@ export default function ValentineCard({ config, forceEmbedded }: Props) {
                 </Pressable>
               </View>
 
-              <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none' }}>
+              <View
+                pointerEvents="box-none"
+                style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+              >
                 <ConfettiCannon count={110} origin={{ x: 0, y: 0 }} fadeOut />
               </View>
             </>
@@ -352,9 +369,15 @@ export default function ValentineCard({ config, forceEmbedded }: Props) {
                   noOpacity.value = withTiming(0.15, { duration: 220 });
                   setNoDisabled(true);
                 }}
-                style={{ flex: 1, backgroundColor: theme.yes,
+                style={{
+                  flex: 1,
+                  backgroundColor: theme.yes,
                   borderWidth: 1,
-                  borderColor: 'rgba(255,255,255,0.22)', borderRadius: 16, paddingVertical: 12, alignItems: 'center' }}
+                  borderColor: 'rgba(255,255,255,0.22)',
+                  borderRadius: 16,
+                  paddingVertical: 12,
+                  alignItems: 'center'
+                }}
               >
                 <Text style={{ color: 'white', fontWeight: '900' }}>Okay… YES</Text>
               </Pressable>
