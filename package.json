@@ -1,0 +1,45 @@
+{
+  "name": "onlyyes",
+  "version": "1.0.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "web": "expo start --web",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "test": "jest --watchAll=false",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "*",
+    "expo": "*",
+    "expo-clipboard": "*",
+    "expo-haptics": "*",
+    "expo-linear-gradient": "*",
+    "expo-linking": "*",
+    "expo-router": "*",
+    "expo-status-bar": "*",
+    "react": "*",
+    "react-dom": "*",
+    "react-native": "*",
+    "react-native-confetti-cannon": "*",
+    "react-native-gesture-handler": "*",
+    "react-native-reanimated": "*",
+    "react-native-safe-area-context": "*",
+    "react-native-screens": "*",
+    "react-native-web": "*",
+    "buffer": "*"
+  },
+  "devDependencies": {
+    "@types/jest": "*",
+    "@types/react": "*",
+    "@types/react-test-renderer": "*",
+    "eslint": "*",
+    "eslint-config-universe": "*",
+    "jest": "*",
+    "jest-expo": "*",
+    "react-test-renderer": "*",
+    "typescript": "*"
+  }
+}
